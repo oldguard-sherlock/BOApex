@@ -1,0 +1,38 @@
+{
+  "url": "http://127.0.0.1:8081/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Property equipment sourcing in Lagos | BOapex Property Solutions",
+      "hasCanvas": false,
+      "bodyTextLen": 7521,
+      "bodyTextHash": "42ff88c02c8d2f404d846026103f9505f07475934bca7ee0c5f877752d831cee",
+      "bodyTextPrefix": "Skip to content BOapex LOGO PLACEHOLDER HOME SOLUTIONS PRODUCTS ",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-built.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Property equipment sourcing in Lagos | BOapex Property Solutions",
+      "hasCanvas": false,
+      "bodyTextLen": 7469,
+      "bodyTextHash": "1e3c8ffb3e95fc01c70d92b12f2cb5ccc14da66956ade7f4aee9c8269f36bd5c",
+      "bodyTextPrefix": "Skip to content BOapex LOGO PLACEHOLDER REQUEST A QUOTE Open men",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-built-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/app-builder-built.json",
+  "divergesFromBaseline": false,
+  "baselineReasons": []
+}
