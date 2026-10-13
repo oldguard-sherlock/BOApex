@@ -211,6 +211,8 @@ export function QuoteForm({
   }
   
 async function onSubmit(event: FormEvent) {
+
+  console.log("[QuoteForm] Submit handler fired");
   event.preventDefault();
 
   if (submitting) return;
