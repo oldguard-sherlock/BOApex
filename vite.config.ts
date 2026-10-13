@@ -157,6 +157,7 @@ export default defineConfig(({ command, isPreview }) => ({
     port: 8081,
     strictPort: true,
   },
+  
   resolve: { tsconfigPaths: true },
   plugins: [
     pgliteBootstrapPlugin(),
@@ -173,7 +174,14 @@ export default defineConfig(({ command, isPreview }) => ({
         ? { preset: "vercel" }
         : {}),
       serverDir: "./server",
+    runtimeConfig: {
+    resendApiKey: process.env.RESEND_API_KEY,
+    enquiryToEmail: process.env.ENQUIRY_TO_EMAIL,
+    enquiryFromEmail: process.env.ENQUIRY_FROM_EMAIL,
+  }
     }),
+    
+    
     
     viteReact(),
   ],

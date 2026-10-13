@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import { useRef, useState, type FormEvent, type ReactNode } from "react";
+import { useRef, useState, useEffect, type FormEvent, type ReactNode } from "react";
+
 import { categories, projectStatuses, projectTypes, propertyCounts } from "@/lib/content";
 import {
   checkAttachment,
@@ -171,12 +172,12 @@ async function onSubmit(event: FormEvent) {
   }
 
   // Keep the existing minimum completion time.
-  if (Date.now() - started.current < 1500) {
+ /* if (Date.now() - started.current < 1500) {
     setErrors({
       form: "Please wait a moment before submitting your enquiry.",
     });
     return;
-  }
+  }*/
 
   // Keep the existing honeypot behavior for automated submissions.
   if (honeypot.trim()) {
