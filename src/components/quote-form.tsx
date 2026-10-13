@@ -37,6 +37,9 @@ export function QuoteForm({
 
   const [fullName, setFullName] = useState("");
   const [company, setCompany] = useState("");
+  
+  const [submitting, setSubmitting] = useState(false);
+
   const [email, setEmail] = useState("");
   const [telephone, setTelephone] = useState("");
   const [preferredContact, setPreferredContact] = useState<PreferredContact>("email");
@@ -110,7 +113,7 @@ export function QuoteForm({
     return next;
   }
 
-  function onSubmit(event: FormEvent) {
+  function onSubmitFallback(event: FormEvent) {
     event.preventDefault();
     const next = validate();
     setErrors(next);
@@ -206,6 +209,170 @@ export function QuoteForm({
       setContactResult(entry);
     }
   }
+  
+async function onSubmit(event: FormEvent) {
+  event.preventDefault();
+
+  if (submitting) return;
+
+  const nextErrors: Record<string, string> = {};
+
+  if (!fullName.trim()) {
+    nextErrors.fullName = "Please enter your full name.";
+  }
+
+  if (!validEmail(email)) {
+    nextErrors.email = "Please enter a valid email address.";
+  }
+
+  if (!validPhone(telephone)) {
+    nextErrors.telephone = "Please enter a valid telephone number.";
+  }
+
+  if (!consent) {
+    nextErrors.consent = "Please confirm that we may use your information to respond.";
+  }
+
+  if (variant === "project") {
+    if (!projectType) {
+      nextErrors.projectType = "Please select a project type.";
+    }
+
+    if (!location.trim()) {
+      nextErrors.location = "Please enter the project location.";
+    }
+
+    if (details.trim().length < 12) {
+      nextErrors.details = "Please provide at least 12 characters of project requirements.";
+    }
+
+    if (fileError) {
+      nextErrors.attachment = fileError;
+    }
+  } else if (message.trim().length < 12) {
+    nextErrors.message = "Please enter a message of at least 12 characters.";
+  }
+
+  setErrors(nextErrors);
+
+  if (Object.keys(nextErrors).length > 0) {
+    const firstError = Object.keys(nextErrors)[0];
+    document
+      .getElementById(firstError)
+      ?.focus();
+    return;
+  }
+
+  // Keep the existing minimum completion time.
+  if (Date.now() - started.current < 1500) {
+    setErrors({
+      form: "Please wait a moment before submitting your enquiry.",
+    });
+    return;
+  }
+
+  // Keep the existing honeypot behavior for automated submissions.
+  if (honeypot.trim()) {
+    const fakeResult = {
+      kind: "contact" as const,
+      reference: "BO-HELD",
+      createdAt: new Date().toISOString(),
+      fullName: "",
+      email: "",
+      telephone: "",
+      preferredContact: "email" as PreferredContact,
+      message: "",
+    };
+
+    setContactResult(fakeResult);
+    return;
+  }
+
+  const createdAt = new Date().toISOString();
+  const reference = makeReference();
+
+  const entry: ProjectEnquiry | ContactEnquiry =
+    variant === "project"
+      ? {
+          kind: "project",
+          reference,
+          createdAt,
+          fullName: fullName.trim(),
+          company: company.trim(),
+          email: email.trim(),
+          telephone: telephone.trim(),
+          preferredContact,
+          projectType,
+          location: location.trim(),
+          projectStatus,
+          categories: categories
+            .filter((item) => selected.includes(item.slug))
+            .map((item) => item.name),
+          details: details.trim(),
+          quantity: quantity.trim(),
+          budget: budget.trim(),
+          budgetUndetermined,
+          timeline: timeline.trim(),
+          propertyCount,
+          additional: additional.trim(),
+          attachmentName: fileName,
+        }
+      : {
+          kind: "contact",
+          reference,
+          createdAt,
+          fullName: fullName.trim(),
+          email: email.trim(),
+          telephone: telephone.trim(),
+          preferredContact,
+          message: message.trim(),
+        };
+
+  setSubmitting(true);
+  setErrors({});
+
+  try {
+    const response = await fetch("/api/enquiries", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        ...entry,
+        website: honeypot,
+      }),
+    });
+
+    const result = await response.json().catch(() => ({}));
+
+    if (!response.ok || result.ok !== true) {
+      throw new Error(
+        typeof result.error === "string"
+          ? result.error
+          : "We couldn't submit your enquiry. Please try again.",
+      );
+    }
+
+    // Save locally only after the API accepts the email request.
+    saveEnquiry(entry);
+
+    if (entry.kind === "project") {
+      setProjectResult(entry);
+    } else {
+      setContactResult(entry);
+    }
+  } catch (error) {
+    setErrors({
+      form:
+        error instanceof Error
+          ? error.message
+          : "We couldn't submit your enquiry. Please try again.",
+    });
+  } finally {
+    setSubmitting(false);
+  }
+}
+
 
   if (projectResult) {
     const summary = formatProjectSummary(projectResult);
@@ -522,9 +689,19 @@ export function QuoteForm({
           ) : null}
         </div>
 
-        <button type="submit" className={`${btnPrimary} mt-8 w-full sm:w-auto`}>
-          {variant === "project" ? "Submit project enquiry" : "Submit enquiry"}
+      
+          <button
+          type="submit"
+          className={`${btnPrimary} mt-8 w-full sm:w-auto`}
+          disabled={submitting}
+          >
+        {submitting
+        ? "Submitting..."
+        : variant === "project"
+        ? "Submit project enquiry"
+        : "Submit enquiry"}
         </button>
+
       </form>
 
       <aside className="border border-line bg-sheet p-5">
@@ -619,8 +796,8 @@ function Confirmation({
       )}
       {attachmentNoted ? (
         <p className="mt-3 text-sm leading-relaxed text-muted">
-          The attachment name was noted. The file itself was not uploaded. Send the document when you
-          contact BOapex.
+            The file is checked here but is not uploaded with your enquiry.
+            Please contact BOapex separately to arrange secure transfer of the document.
         </p>
       ) : null}
       <div className="mt-6 flex flex-col gap-3 sm:flex-row">

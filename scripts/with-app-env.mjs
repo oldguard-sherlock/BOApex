@@ -20,7 +20,7 @@
  * `process.env`, which is why the merge has to happen before Vite starts.
  */
 import { spawn } from "node:child_process";
-import { readFileSync, realpathSync } from "node:fs";
+import { existsSync, readFileSync, realpathSync } from "node:fs";
 import { constants as osConstants } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -104,22 +104,49 @@ export function isMainModule(moduleUrl) {
   }
 }
 
+/**
+ * Resolve a command to the local binary in node_modules/.bin when it exists.
+ * On Windows the binary is usually `command.cmd`.
+ */
+function resolveLocalBin(command, root) {
+  const isWin = process.platform === "win32";
+  const binName = isWin ? `${command}.cmd` : command;
+  const localBin = join(root, "node_modules", ".bin", binName);
+
+  if (existsSync(localBin)) {
+    return localBin;
+  }
+  // Fallback to the original command (global tool or already in PATH)
+  return command;
+}
+
 function main(argv) {
   const [command, ...args] = argv;
   if (!command) {
     console.error("usage: node scripts/with-app-env.mjs <command> [args…]");
     process.exit(2);
   }
-  const env = mergeAppEnv(readAppEnv(projectRoot()), process.env);
-  const child = spawn(command, args, { stdio: "inherit", env });
+
+  const root = projectRoot();
+  const env = mergeAppEnv(readAppEnv(root), process.env);
+  const resolvedCommand = resolveLocalBin(command, root);
+
+  const child = spawn(resolvedCommand, args, {
+    stdio: "inherit",
+    env,
+    shell: process.platform === "win32", // required on Windows for .cmd files
+  });
+
   // The dev server is long-running and is stopped by signalling this wrapper.
   for (const signal of ["SIGINT", "SIGTERM", "SIGHUP"]) {
     process.on(signal, () => child.kill(signal));
   }
+
   child.on("error", (err) => {
     console.error(`[with-app-env] failed to run ${command}:`, err?.message || err);
     process.exit(127);
   });
+
   child.on("exit", (code, signal) => {
     process.exit(exitStatusFromChild(code, signal));
   });
