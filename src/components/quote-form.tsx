@@ -344,7 +344,7 @@ async function onSubmit(event: FormEvent) {
     });
     
     const result = await response.json().catch(() => ({}));
-
+    console.log (result)
     if (!response.ok || result.ok !== true) {
       throw new Error(
         typeof result.error === "string"
