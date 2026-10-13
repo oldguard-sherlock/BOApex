@@ -342,7 +342,7 @@ async function onSubmit(event: FormEvent) {
         website: honeypot,
       }),
     });
-
+    
     const result = await response.json().catch(() => ({}));
 
     if (!response.ok || result.ok !== true) {
