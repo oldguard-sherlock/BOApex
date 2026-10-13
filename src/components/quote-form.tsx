@@ -603,6 +603,10 @@ async function onSubmit(event: FormEvent) {
           form="contact-quote-form"
           className={`${btnPrimary} mt-8 w-full sm:w-auto`}
           disabled={submitting}
+          onClick={() => {
+    console.log("!!! RAW BUTTON CLICKED !!!");
+    alert("Button click registered!");
+  }}
           >
         {submitting
         ? "Submitting..."
