@@ -240,16 +240,16 @@ async function onSubmit(event: FormEvent) {
   setErrors({});
 
   try {
-    const response = await fetch("/api/enquiries", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        ...entry,
-        website: honeypot,
-      }),
-    });
+    const response = await fetch(window.location.origin + "/api/enquiries", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      ...entry,
+      website: honeypot,
+    }),
+  });
     
     const result = await response.json().catch(() => ({}));
     console.log (result)
