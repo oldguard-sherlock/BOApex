@@ -323,7 +323,7 @@ async function onSubmit(event: FormEvent) {
 
   return (
     <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-start">
-      <form className="border border-line bg-card p-5 md:p-8" onSubmit={onSubmit} noValidate>
+      <form  id="contact-quote-form" className="border border-line bg-card p-5 md:p-8" onSubmit={onSubmit} noValidate>
         <p className="text-sm text-muted">Required fields are marked. Do not send card numbers or banking passwords.</p>
         {errors.form ? (
           <p role="alert" className="mt-4 border border-line bg-sheet px-3 py-2 text-sm text-ink">
@@ -600,6 +600,7 @@ async function onSubmit(event: FormEvent) {
       
           <button
           type="submit"
+          form="contact-quote-form"
           className={`${btnPrimary} mt-8 w-full sm:w-auto`}
           disabled={submitting}
           >
