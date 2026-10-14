@@ -268,6 +268,8 @@ async function onSubmit(event: FormEvent) {
     if (entry.kind === "project") {
       setProjectResult(entry);
     } else {
+      alert("We're hitting contacts inside of onSubmit yay!!");
+      console.log(entry)
       setContactResult(entry);
     }
   } catch (error) {
