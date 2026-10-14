@@ -268,7 +268,6 @@ async function onSubmit(event: FormEvent) {
     if (entry.kind === "project") {
       setProjectResult(entry);
     } else {
-      alert("We're hitting contacts inside of onSubmit yay!!");
       console.log(entry)
       setContactResult(entry);
     }
@@ -606,10 +605,7 @@ async function onSubmit(event: FormEvent) {
           form="contact-quote-form"
           className={`${btnPrimary} mt-8 w-full sm:w-auto`}
           disabled={submitting}
-          onClick={() => {
-    console.log("!!! RAW BUTTON CLICKED !!!");
-    alert("Button click registered!");
-  }}
+          
           >
         {submitting
         ? "Submitting..."
@@ -697,8 +693,8 @@ function Confirmation({
       <p className="mt-4 font-display text-2xl tracking-wide">{reference}</p>
       <p className="mt-4 max-w-2xl leading-relaxed text-muted">
         {contact
-          ? "Your message has been submitted and saved on this device. This is not a quotation."
-          : "Your project enquiry has been submitted and saved on this device. A quotation has not been prepared. BOapex still needs to review the requirements before proposing products, pricing or delivery."}
+          ? "Your message has been submitted. This is not a quotation."
+          : "Your project enquiry has been submitted . A quotation has not been prepared. BOapex still needs to review the requirements before proposing products, pricing or delivery."}
       </p>
       {hasContactValue(site.email) ? (
         <p className="mt-4 text-sm leading-relaxed text-muted">
